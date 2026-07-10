@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Terminal stack cheat sheet — Neovim (LazyVim), tmux, WezTerm, and Git/GitHub (gh, octo.nvim), styled in Catppuccin Mocha.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%E2%8C%A8%EF%B8%8F</text></svg>">
+<title>Terminal Stack Cheat Sheet — Neovim · tmux · WezTerm</title>
+<style>
+  /* ============ Catppuccin token system ============ */
+  /* Default = Latte (light). Dark = Mocha. Both overridable via data-theme. */
+  :root {
+    --bg:        #e6e9ef;  /* mantle  */
+    --card:      #eff1f5;  /* base    */
+    --inset:     #dce0e8;  /* crust   */
+    --border:    #ccd0da;  /* surface0*/
+    --border-2:  #bcc0cc;  /* surface1*/
+    --text:      #4c4f69;
+    --muted:     #6c6f85;
+    --faint:     #8c8fa1;
+    --accent:    #8839ef;  /* mauve   */
+    --nvim:      #1e66f5;  /* blue    */
+    --tmux:      #40a02b;  /* green   */
+    --wez:       #fe640b;  /* peach   */
+    --danger:    #d20f39;  /* red     */
+    --kbd-bg:    #ffffff;
+    --kbd-shadow:#bcc0cc;
+
+    --mono: "JetBrainsMono Nerd Font", "JetBrains Mono", "Cascadia Code", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --maxw: 1180px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:        #181825;
+      --card:      #1e1e2e;
+      --inset:     #11111b;
+      --border:    #313244;
+      --border-2:  #45475a;
+      --text:      #cdd6f4;
+      --muted:     #a6adc8;
+      --faint:     #7f849c;
+      --accent:    #cba6f7;
+      --nvim:      #89b4fa;
+      --tmux:      #a6e3a1;
+      --wez:       #fab387;
+      --danger:    #f38ba8;
+      --kbd-bg:    #313244;
+      --kbd-shadow:#11111b;
+    }
+  }
+  :root[data-theme="light"] {
+    --bg:#e6e9ef; --card:#eff1f5; --inset:#dce0e8; --border:#ccd0da; --border-2:#bcc0cc;
+    --text:#4c4f69; --muted:#6c6f85; --faint:#8c8fa1; --accent:#8839ef; --nvim:#1e66f5;
+    --tmux:#40a02b; --wez:#fe640b; --danger:#d20f39; --kbd-bg:#ffffff; --kbd-shadow:#bcc0cc;
+  }
+  :root[data-theme="dark"] {
+    --bg:#181825; --card:#1e1e2e; --inset:#11111b; --border:#313244; --border-2:#45475a;
+    --text:#cdd6f4; --muted:#a6adc8; --faint:#7f849c; --accent:#cba6f7; --nvim:#89b4fa;
+    --tmux:#a6e3a1; --wez:#fab387; --danger:#f38ba8; --kbd-bg:#313244; --kbd-shadow:#11111b;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px 96px; }
+
+  /* ============ Header ============ */
+  header.top {
+    max-width: var(--maxw);
+    margin: 0 auto;
+    padding: 54px 22px 26px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: .74rem;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--mono);
+    font-weight: 800;
+    font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+    line-height: 1.05;
+    letter-spacing: -.01em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  h1 .slash { color: var(--faint); font-weight: 400; }
+  .lede { color: var(--muted); max-width: 60ch; margin: 0 0 26px; font-size: 1.05rem; }
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 20px; align-items: center; }
+  .legend .item { display: inline-flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: .82rem; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; }
+  .dot.nvim { background: var(--nvim); } .dot.tmux { background: var(--tmux); } .dot.wez { background: var(--wez); }
+
+  /* ============ Sticky nav ============ */
+  nav.jump {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 34px;
+  }
+  nav.jump .inner { max-width: var(--maxw); margin: 0 auto; padding: 10px 22px; display: flex; flex-wrap: wrap; gap: 8px; }
+  nav.jump a {
+    font-family: var(--mono); font-size: .8rem; text-decoration: none;
+    color: var(--muted); padding: 6px 12px; border-radius: 7px; border: 1px solid transparent;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  nav.jump a:hover { color: var(--text); background: var(--card); border-color: var(--border); }
+  nav.jump a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  nav.jump a .bar { display: inline-block; width: 7px; height: 7px; border-radius: 2px; margin-right: 7px; vertical-align: middle; }
+
+  /* ============ Survival kit ============ */
+  .survival {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 14px; margin-bottom: 46px;
+  }
+  .sv {
+    background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+    padding: 16px 16px 15px; border-left: 3px solid var(--danger);
+  }
+  .sv h4 { margin: 0 0 9px; font-family: var(--mono); font-size: .82rem; letter-spacing: .04em; text-transform: uppercase; color: var(--faint); }
+  .sv .keys { margin-bottom: 8px; }
+  .sv p { margin: 0; font-size: .9rem; color: var(--muted); }
+
+  /* ============ Tool section ============ */
+  section.tool { margin-bottom: 30px; scroll-margin-top: 66px; }
+  .band { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; padding: 6px 0 4px; margin-bottom: 18px; border-bottom: 2px solid var(--tool); }
+  .band h2 { font-family: var(--mono); font-weight: 800; font-size: 1.6rem; margin: 0; color: var(--tool); letter-spacing: -.01em; }
+  .band .sub { color: var(--muted); font-size: .92rem; }
+  section.nvim { --tool: var(--nvim); }
+  section.tmux { --tool: var(--tmux); }
+  section.wez  { --tool: var(--wez); }
+  section.git  { --tool: var(--accent); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; align-items: start; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 13px;
+    padding: 18px 18px 8px; transition: border-color .15s, transform .15s;
+  }
+  .card:hover { border-color: var(--tool); }
+  @media (prefers-reduced-motion: reduce) { .card { transition: none; } }
+  .card h3 {
+    font-family: var(--mono); font-size: .82rem; letter-spacing: .09em; text-transform: uppercase;
+    color: var(--tool); margin: 0 0 4px; display: flex; align-items: center; gap: 8px;
+  }
+  .card h3::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--tool); }
+  .card .note { font-size: .82rem; color: var(--faint); margin: 0 0 10px; }
+
+  .rows { display: grid; grid-template-columns: auto 1fr; column-gap: 16px; }
+  .rows > .k, .rows > .d { padding: 7px 0; border-top: 1px solid var(--border); align-self: center; }
+  .rows > .k:first-child, .rows > .d:nth-child(2) { border-top: none; }
+  .rows > .k { white-space: nowrap; }
+  .rows > .d { color: var(--muted); font-size: .9rem; }
+  .rows > .d code { font-family: var(--mono); font-size: .82em; background: var(--inset); padding: 1px 5px; border-radius: 4px; color: var(--text); }
+  .keys code { font-family: var(--mono); font-size: .74rem; background: var(--inset); color: var(--text); padding: 2px 6px; border-radius: 5px; white-space: nowrap; border: 1px solid var(--border); }
+  .cmdlist { display: flex; flex-direction: column; gap: 9px; padding-bottom: 8px; }
+  .cmd { display: flex; flex-direction: column; gap: 3px; }
+  .cmd code { font-family: var(--mono); font-size: .76rem; background: var(--inset); color: var(--text); padding: 6px 9px; border-radius: 7px; overflow-x: auto; white-space: nowrap; border: 1px solid var(--border); }
+  .cmd code b { color: var(--tool, var(--accent)); font-weight: 700; }
+  .cmd > span { color: var(--muted); font-size: .85rem; }
+
+  /* ============ Keycaps ============ */
+  kbd {
+    font-family: var(--mono); font-size: .76rem; font-weight: 600; line-height: 1;
+    color: var(--text); background: var(--kbd-bg);
+    border: 1px solid var(--border-2); border-radius: 6px;
+    padding: 4px 7px; display: inline-block;
+    box-shadow: 0 2px 0 var(--kbd-shadow);
+    white-space: nowrap;
+  }
+  kbd.wide { letter-spacing: .01em; }
+  .sep { color: var(--faint); font-size: .74rem; padding: 0 3px; font-family: var(--mono); }
+  .then { color: var(--tool, var(--accent)); font-size: .68rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: .08em; padding: 0 4px; }
+  .keys { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 3px; }
+
+  /* prefix / leader badges */
+  .badge { font-family: var(--mono); font-weight: 700; font-size: .72rem; padding: 4px 9px; border-radius: 6px; letter-spacing: .03em; }
+  .badge.prefix { background: color-mix(in srgb, var(--tmux) 20%, transparent); color: var(--tmux); border: 1px solid color-mix(in srgb, var(--tmux) 45%, transparent); }
+  .badge.leader { background: color-mix(in srgb, var(--nvim) 20%, transparent); color: var(--nvim); border: 1px solid color-mix(in srgb, var(--nvim) 45%, transparent); }
+
+  .callout {
+    background: color-mix(in srgb, var(--tool) 9%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--tool) 35%, var(--border));
+    border-radius: 11px; padding: 14px 16px; margin-bottom: 18px; font-size: .92rem; color: var(--text);
+  }
+  .callout strong { color: var(--tool); }
+  .callout .keys { margin: 0 2px; }
+
+  /* ============ Footer / config ============ */
+  .configs { margin-top: 40px; }
+  .configs h2 { font-family: var(--mono); font-size: 1.15rem; letter-spacing: .02em; margin: 0 0 16px; color: var(--accent); }
+  .cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .cfg { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px; }
+  .cfg h4 { margin: 0 0 8px; font-family: var(--mono); font-size: .9rem; }
+  .cfg .path { font-family: var(--mono); font-size: .78rem; color: var(--accent); background: var(--inset); padding: 6px 8px; border-radius: 6px; display: block; overflow-x: auto; white-space: nowrap; margin-bottom: 8px; }
+  .cfg p { margin: 0; font-size: .86rem; color: var(--muted); }
+  footer.end { margin-top: 44px; padding-top: 20px; border-top: 1px solid var(--border); color: var(--faint); font-size: .82rem; font-family: var(--mono); text-align: center; }
+
+  a.reflink { color: var(--accent); text-decoration: none; border-bottom: 1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+  a.reflink:hover { border-bottom-color: var(--accent); }
+
+  /* ============ Print — ink-friendly one-pager ============ */
+  @media print {
+    :root, :root[data-theme="dark"], :root[data-theme="light"] {
+      --bg:#ffffff; --card:#ffffff; --inset:#f3f3f6; --border:#c9c9d2; --border-2:#b0b0bc;
+      --text:#1a1a28; --muted:#3f4157; --faint:#6a6c82; --accent:#7a1fd0; --nvim:#1550c8;
+      --tmux:#2f7d1f; --wez:#c8500a; --danger:#b00a2e; --kbd-bg:#ffffff; --kbd-shadow:#d4d4dc;
+    }
+    @page { margin: 12mm; }
+    body { font-size: 9.5px; line-height: 1.35; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    nav.jump { display: none; }
+    header.top { padding: 0 0 10px; }
+    h1 { font-size: 1.35rem; }
+    h1 br { display: none; }
+    .lede { display: none; }
+    .wrap { padding: 0; max-width: none; }
+    .band { margin-bottom: 8px; padding-top: 10px; }
+    .band h2 { font-size: 1.15rem; }
+    section.tool { margin-bottom: 12px; }
+    .grid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .survival { grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 14px; }
+    .cfg-grid { grid-template-columns: repeat(3, 1fr); gap: 7px; }
+    .card, .sv, .cfg, .callout { break-inside: avoid; box-shadow: none; }
+    .card { padding: 9px 11px 3px; }
+    .card:hover { transform: none; border-color: var(--border); }
+    .rows > .k, .rows > .d { padding: 3px 0; }
+    kbd { box-shadow: none; padding: 2px 5px; font-size: .72rem; }
+    .callout { padding: 8px 11px; margin-bottom: 10px; }
+    a[href] { color: inherit; }
+    footer.end { border: none; }
+  }
+</style>
+</head>
+<body>
+
+
+<header class="top">
+  <p class="eyebrow">Personal reference · Catppuccin Mocha</p>
+  <h1>Terminal Stack Cheat&nbsp;Sheet<br><span class="slash">Neovim / tmux / WezTerm</span></h1>
+  <p class="lede">Everything for your setup in one place — LazyVim as the editor, tmux for persistent sessions, WezTerm as the terminal. Keys shown here match <em>your</em> config: the tmux prefix is <kbd>Ctrl</kbd>&nbsp;<kbd>a</kbd> and the Neovim leader is <kbd class="wide">Space</kbd>.</p>
+  <div class="legend">
+    <span class="item"><span class="dot nvim"></span>Neovim (LazyVim)</span>
+    <span class="item"><span class="dot tmux"></span>tmux</span>
+    <span class="item"><span class="dot wez"></span>WezTerm</span>
+  </div>
+</header>
+
+<nav class="jump" aria-label="Jump to section">
+  <div class="inner">
+    <a href="#survival"><span class="bar" style="background:var(--danger)"></span>Survival kit</a>
+    <a href="#neovim"><span class="bar" style="background:var(--nvim)"></span>Neovim</a>
+    <a href="#tmux"><span class="bar" style="background:var(--tmux)"></span>tmux</a>
+    <a href="#wezterm"><span class="bar" style="background:var(--wez)"></span>WezTerm</a>
+    <a href="#git"><span class="bar" style="background:var(--accent)"></span>Git · GitHub</a>
+    <a href="#configs"><span class="bar" style="background:var(--accent)"></span>Configs</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ===================== SURVIVAL KIT ===================== -->
+  <section id="survival" style="scroll-margin-top:66px">
+    <div class="survival">
+      <div class="sv">
+        <h4>Quit Neovim</h4>
+        <div class="keys"><kbd>Esc</kbd> <span class="then" style="--tool:var(--danger)">then</span> <kbd>:q</kbd> <kbd>Enter</kbd></div>
+        <p>Stuck in a weird state? <kbd>Esc</kbd> a few times first. Discard changes with <code>:q!</code></p>
+      </div>
+      <div class="sv">
+        <h4>Discover Neovim keys</h4>
+        <div class="keys"><kbd class="wide">Space</kbd></div>
+        <p>Press it and <em>wait</em> — a menu of every leader shortcut pops up (which-key).</p>
+      </div>
+      <div class="sv">
+        <h4>tmux prefix</h4>
+        <div class="keys"><kbd>Ctrl</kbd> <span class="sep">+</span> <kbd>a</kbd></div>
+        <p>Every tmux command starts with this. Press it, release, then the command key.</p>
+      </div>
+      <div class="sv">
+        <h4>Leave tmux running</h4>
+        <div class="keys"><kbd>Ctrl</kbd> <span class="sep">+</span> <kbd>a</kbd> <span class="then" style="--tool:var(--danger)">then</span> <kbd>d</kbd></div>
+        <p>Detaches — your session keeps running. Reattach later with <code>tmux a</code>.</p>
+      </div>
+      <div class="sv">
+        <h4>WezTerm command palette</h4>
+        <div class="keys"><kbd>Ctrl</kbd> <span class="sep">+</span> <kbd>Shift</kbd> <span class="sep">+</span> <kbd>P</kbd></div>
+        <p>Searchable list of every WezTerm action when you forget a shortcut.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== NEOVIM ===================== -->
+  <section class="tool nvim" id="neovim">
+    <div class="band"><h2>Neovim</h2><span class="sub">LazyVim distribution · leader = <span class="badge leader">Space</span></span></div>
+
+    <div class="callout">
+      <strong>The mental model:</strong> Neovim is <em>modal</em>. You're almost always in <strong>Normal</strong> mode (for moving &amp; commands), not typing text. Press <kbd>i</kbd> to enter <strong>Insert</strong> mode and type; press <kbd>Esc</kbd> to go back. If a keypress does something weird, you're probably in the wrong mode — hit <kbd>Esc</kbd>.
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Modes</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>Esc</kbd></span></div><div class="d">Back to <strong>Normal</strong> mode (safe home base)</div>
+          <div class="k"><span class="keys"><kbd>i</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>a</kbd></span></div><div class="d">Insert before / after the cursor</div>
+          <div class="k"><span class="keys"><kbd>I</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>A</kbd></span></div><div class="d">Insert at line start / line end</div>
+          <div class="k"><span class="keys"><kbd>o</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>O</kbd></span></div><div class="d">Open new line below / above</div>
+          <div class="k"><span class="keys"><kbd>v</kbd></span></div><div class="d">Visual (select) &middot; <kbd>V</kbd> line &middot; <kbd>Ctrl</kbd><kbd>v</kbd> block</div>
+          <div class="k"><span class="keys"><kbd>:</kbd></span></div><div class="d">Command line (for <code>:w</code>, <code>:q</code>, etc.)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Move around</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></span></div><div class="d">Left · down · up · right</div>
+          <div class="k"><span class="keys"><kbd>w</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>b</kbd></span></div><div class="d">Next / previous word</div>
+          <div class="k"><span class="keys"><kbd>0</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>$</kbd></span></div><div class="d">Start / end of line</div>
+          <div class="k"><span class="keys"><kbd>gg</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>G</kbd></span></div><div class="d">Top / bottom of file</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>u</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>Ctrl</kbd><kbd>d</kbd></span></div><div class="d">Half page up / down</div>
+          <div class="k"><span class="keys"><kbd>{n}</kbd><kbd>G</kbd></span></div><div class="d">Jump to line number <code>n</code></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Edit text</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>x</kbd></span></div><div class="d">Delete character under cursor</div>
+          <div class="k"><span class="keys"><kbd>dd</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>dw</kbd></span></div><div class="d">Delete whole line / word</div>
+          <div class="k"><span class="keys"><kbd>yy</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>p</kbd></span></div><div class="d">Copy ("yank") line / paste after</div>
+          <div class="k"><span class="keys"><kbd>cc</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>cw</kbd></span></div><div class="d">Change line / word (delete + insert)</div>
+          <div class="k"><span class="keys"><kbd>u</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>Ctrl</kbd><kbd>r</kbd></span></div><div class="d">Undo / redo</div>
+          <div class="k"><span class="keys"><kbd>.</kbd></span></div><div class="d">Repeat your last change</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Search &amp; replace</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>/</kbd><kbd>text</kbd></span></div><div class="d">Search forward · <kbd>n</kbd>/<kbd>N</kbd> next/prev match</div>
+          <div class="k"><span class="keys"><kbd>*</kbd></span></div><div class="d">Search word under the cursor</div>
+          <div class="k"><span class="keys"><kbd>:%s/old/new/g</kbd></span></div><div class="d">Replace all in file</div>
+          <div class="k"><span class="keys"><kbd>:noh</kbd></span></div><div class="d">Clear search highlighting</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Files &amp; project search</h3>
+        <p class="note">LazyVim keys — press <span class="badge leader">Space</span> first.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>e</kbd></span></div><div class="d">Toggle file explorer (Neo-tree)</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>Space</kbd></span></div><div class="d">Find files by name (fuzzy)</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>/</kbd></span></div><div class="d">Search text across the whole project (grep)</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>f</kbd><kbd>r</kbd></span></div><div class="d">Recent files</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>,</kbd></span></div><div class="d">Switch between open buffers</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>File explorer (Neo-tree)</h3>
+        <p class="note">These single keys work <em>inside</em> the explorer. Open it with <span class="badge leader">Space</span><kbd>e</kbd>.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>j</kbd><kbd>k</kbd> <span class="sep">/</span> <kbd>Enter</kbd></span></div><div class="d">Move up/down · open file or folder</div>
+          <div class="k"><span class="keys"><kbd>s</kbd> <span class="sep">/</span> <kbd>S</kbd></span></div><div class="d">Open in vertical / horizontal split</div>
+          <div class="k"><span class="keys"><kbd>a</kbd></span></div><div class="d">Add file (end with <code>/</code> to make a folder)</div>
+          <div class="k"><span class="keys"><kbd>r</kbd> <span class="sep">/</span> <kbd>d</kbd></span></div><div class="d">Rename / delete</div>
+          <div class="k"><span class="keys"><kbd>c</kbd> <span class="sep">/</span> <kbd>m</kbd></span></div><div class="d">Copy / move</div>
+          <div class="k"><span class="keys"><kbd>H</kbd></span></div><div class="d">Toggle hidden (dotfiles) on/off</div>
+          <div class="k"><span class="keys"><kbd>?</kbd> <span class="sep">/</span> <kbd>q</kbd></span></div><div class="d">Show all keys / close explorer</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Code / LSP</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>gd</kbd></span></div><div class="d">Go to definition &middot; <kbd>Ctrl</kbd><kbd>o</kbd> jumps back</div>
+          <div class="k"><span class="keys"><kbd>gr</kbd></span></div><div class="d">Find all references</div>
+          <div class="k"><span class="keys"><kbd>K</kbd></span></div><div class="d">Hover docs for symbol under cursor</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>c</kbd><kbd>a</kbd></span></div><div class="d">Code action (quick fixes)</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>c</kbd><kbd>r</kbd></span></div><div class="d">Rename symbol everywhere</div>
+          <div class="k"><span class="keys"><kbd>]d</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>[d</kbd></span></div><div class="d">Next / previous diagnostic (error/warning)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Buffers, windows &amp; tabs</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>Shift</kbd><kbd>h</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>Shift</kbd><kbd>l</kbd></span></div><div class="d">Previous / next buffer (open file)</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>b</kbd><kbd>d</kbd></span></div><div class="d">Close current buffer</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>|</kbd></span> <span class="sep">/</span> <span class="keys"><span class="badge leader">Space</span><kbd>-</kbd></span></div><div class="d">Split window right / below</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>h/j/k/l</kbd></span></div><div class="d">Move between splits</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Save, quit &amp; the essentials</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>:w</kbd></span></div><div class="d">Save file</div>
+          <div class="k"><span class="keys"><kbd>:wq</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>:q!</kbd></span></div><div class="d">Save &amp; quit / quit without saving</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>q</kbd><kbd>q</kbd></span></div><div class="d">Quit everything</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>u</kbd><kbd>C</kbd></span></div><div class="d">Change colorscheme (live preview)</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>l</kbd></span></div><div class="d">Open Lazy (plugin manager)</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== TMUX ===================== -->
+  <section class="tool tmux" id="tmux">
+    <div class="band"><h2>tmux</h2><span class="sub">terminal multiplexer · prefix = <span class="badge prefix">Ctrl a</span></span></div>
+
+    <div class="callout">
+      <strong>The mental model:</strong> a <strong>session</strong> holds <strong>windows</strong> (like tabs), and each window holds <strong>panes</strong> (splits). Everything survives disconnection — detach and the programs keep running. Every shortcut below is: press <span class="badge prefix">Ctrl a</span>, release, <em>then</em> the key.
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Sessions <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(typed in shell)</span></h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>tmux</kbd></span></div><div class="d">Start a new session</div>
+          <div class="k"><span class="keys"><kbd>tmux new -s dev</kbd></span></div><div class="d">New named session ("dev")</div>
+          <div class="k"><span class="keys"><kbd>tmux ls</kbd></span></div><div class="d">List running sessions</div>
+          <div class="k"><span class="keys"><kbd>tmux a</kbd></span></div><div class="d">Attach to last session</div>
+          <div class="k"><span class="keys"><kbd>tmux a -t dev</kbd></span></div><div class="d">Attach to a named session</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Session control <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(via prefix)</span></h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>d</kbd></span></div><div class="d">Detach (leaves everything running)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>s</kbd></span></div><div class="d">Switch between sessions (list)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>$</kbd></span></div><div class="d">Rename current session</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Panes (splits)</h3>
+        <p class="note">Your custom splits open in the current folder.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>|</kbd></span></div><div class="d">Split vertically (side by side)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>-</kbd></span></div><div class="d">Split horizontally (stacked)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></span></div><div class="d">Move between panes (vim directions)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>H</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd></span></div><div class="d">Resize pane (hold to repeat)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>z</kbd></span></div><div class="d">Zoom pane fullscreen (toggle)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>x</kbd></span></div><div class="d">Close current pane</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Windows (tabs)</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>c</kbd></span></div><div class="d">Create new window</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>n</kbd></span> <span class="sep">/</span> <kbd>p</kbd></div><div class="d">Next / previous window</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>1</kbd>…<kbd>9</kbd></span></div><div class="d">Jump to window by number</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>,</kbd></span></div><div class="d">Rename current window</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>w</kbd></span></div><div class="d">List / pick windows</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Scroll, copy &amp; misc</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>[</kbd></span></div><div class="d">Enter scroll/copy mode — then <kbd>q</kbd> to exit</div>
+          <div class="k"><span class="keys">Mouse scroll</span></div><div class="d">Scroll &amp; select panes (mouse is on)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>r</kbd></span></div><div class="d">Reload <code>~/.tmux.conf</code></div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>?</kbd></span></div><div class="d">List every key binding</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>Ctrl</kbd><kbd>a</kbd></span></div><div class="d">Send a literal <kbd>Ctrl</kbd><kbd>a</kbd> to the shell</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== WEZTERM ===================== -->
+  <section class="tool wez" id="wezterm">
+    <div class="band"><h2>WezTerm</h2><span class="sub">the terminal · opens straight into WSL Ubuntu</span></div>
+
+    <div class="callout">
+      <strong>tmux vs WezTerm splits:</strong> WezTerm has its own tabs and panes, but for real work prefer <strong>tmux</strong> inside it — tmux survives detach, closed windows, and SSH. Use WezTerm tabs/panes for quick, throwaway layouts.
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Tabs</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>T</kbd></span></div><div class="d">New tab</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>W</kbd></span></div><div class="d">Close current tab</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Tab</kbd></span></div><div class="d">Next tab · add <kbd>Shift</kbd> for previous</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>1</kbd>…<kbd>9</kbd></span></div><div class="d">Jump to tab by number</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Panes</h3>
+        <p class="note">The <kbd>|</kbd> and <kbd>-</kbd> binds are your custom additions.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>|</kbd></span></div><div class="d">Split into left / right panes</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>-</kbd></span></div><div class="d">Split into top / bottom panes</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>Arrows</kbd></span></div><div class="d">Move focus between panes</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Copy, paste &amp; search</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>C</kbd></span></div><div class="d">Copy selection</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>V</kbd></span></div><div class="d">Paste</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>F</kbd></span></div><div class="d">Search scrollback</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>X</kbd></span></div><div class="d">Copy mode (select with keyboard)</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Font, view &amp; misc</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>=</kbd></span> <span class="sep">/</span> <span class="keys"><kbd>Ctrl</kbd><kbd>-</kbd></span></div><div class="d">Font bigger / smaller · <kbd>Ctrl</kbd><kbd>0</kbd> resets</div>
+          <div class="k"><span class="keys"><kbd>Alt</kbd><kbd>Enter</kbd></span></div><div class="d">Toggle fullscreen</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>P</kbd></span></div><div class="d">Command palette (search all actions)</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>Shift</kbd><kbd>L</kbd></span></div><div class="d">Launcher / debug overlay</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== GIT ===================== -->
+  <section class="tool git" id="git">
+    <div class="band"><h2>Git &amp; GitHub</h2><span class="sub">gitsigns · lazygit · gh CLI · octo.nvim</span></div>
+
+    <div class="callout">
+      <strong>lazygit</strong> is a full visual Git interface — stage, commit, push, branch, and view diffs without memorizing git commands. Open it from inside Neovim with <span class="badge leader">Space</span><kbd>g</kbd><kbd>g</kbd>, or just run <kbd>lazygit</kbd> in any repo. <em>(Just installed &amp; ready to use.)</em>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Git inside Neovim (gitsigns)</h3>
+        <p class="note">Shows changes in the gutter; keys work in any file.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>]h</kbd> <span class="sep">/</span> <kbd>[h</kbd></span></div><div class="d">Jump to next / previous change ("hunk")</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>g</kbd><kbd>h</kbd><kbd>s</kbd></span></div><div class="d">Stage the hunk under the cursor</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>g</kbd><kbd>h</kbd><kbd>r</kbd></span></div><div class="d">Reset (discard) the hunk</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>g</kbd><kbd>h</kbd><kbd>p</kbd></span></div><div class="d">Preview the change inline</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>g</kbd><kbd>h</kbd><kbd>b</kbd></span></div><div class="d">Blame the current line</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>lazygit — open &amp; navigate</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>g</kbd><kbd>g</kbd></span></div><div class="d">Open lazygit from Neovim</div>
+          <div class="k"><span class="keys"><kbd>lazygit</kbd></span></div><div class="d">…or launch it from any repo in the shell</div>
+          <div class="k"><span class="keys"><kbd>Tab</kbd> <span class="sep">/</span> <kbd>←</kbd><kbd>→</kbd></span></div><div class="d">Switch between panels (files, branches, commits)</div>
+          <div class="k"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span></div><div class="d">Move within a panel</div>
+          <div class="k"><span class="keys"><kbd>Enter</kbd></span></div><div class="d">Inspect / expand the selected item</div>
+          <div class="k"><span class="keys"><kbd>?</kbd> <span class="sep">/</span> <kbd>q</kbd></span></div><div class="d">Full keybinding help / quit lazygit</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>lazygit — everyday actions</h3>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>Space</kbd></span></div><div class="d">Stage / unstage the selected file</div>
+          <div class="k"><span class="keys"><kbd>a</kbd></span></div><div class="d">Stage / unstage <em>all</em> changes</div>
+          <div class="k"><span class="keys"><kbd>c</kbd></span></div><div class="d">Commit (opens a message prompt)</div>
+          <div class="k"><span class="keys"><kbd>P</kbd> <span class="sep">/</span> <kbd>p</kbd></span></div><div class="d">Push / pull</div>
+          <div class="k"><span class="keys"><kbd>d</kbd></span></div><div class="d">Discard changes / delete (context-aware)</div>
+          <div class="k"><span class="keys"><kbd>z</kbd></span></div><div class="d">Undo the last action</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>GitHub CLI — browse PRs</h3>
+        <p class="note">Works in any repo · logged in as <code>SyntheticNerd</code>.</p>
+        <div class="cmdlist">
+          <div class="cmd"><code>gh pr list</code><span>Open PRs in this repo</span></div>
+          <div class="cmd"><code>gh pr status</code><span>Yours + PRs awaiting your review</span></div>
+          <div class="cmd"><code>gh pr view 42 --comments</code><span>Description + every comment</span></div>
+          <div class="cmd"><code>gh pr diff 42</code><span>The full diff</span></div>
+          <div class="cmd"><code>gh pr checkout 42</code><span>Check the branch out to run / test it</span></div>
+          <div class="cmd"><code>gh pr checks 42</code><span>CI status · add <code>--web</code> to open in browser</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>GitHub CLI — review &amp; merge</h3>
+        <div class="cmdlist">
+          <div class="cmd"><code>gh pr review 42 --approve</code><span>Approve the PR</span></div>
+          <div class="cmd"><code>gh pr review 42 --request-changes -b "…"</code><span>Request changes with a note</span></div>
+          <div class="cmd"><code>gh pr comment 42 -b "…"</code><span>Add a top-level comment</span></div>
+          <div class="cmd"><code>gh pr merge 42 --squash --delete-branch</code><span>Squash-merge &amp; delete the branch</span></div>
+          <div class="cmd"><code>gh pr merge 42 --squash <b>--admin</b></code><span>Merge <strong>bypassing</strong> required checks / reviews</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>octo.nvim — PRs in Neovim</h3>
+        <p class="note">Full review in your editor — threads anchored to lines.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>g</kbd><kbd>O</kbd></span></div><div class="d">List &amp; open PRs (comments inline)</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>g</kbd><kbd>i</kbd></span></div><div class="d">List issues</div>
+          <div class="k"><span class="keys"><span class="badge leader">Space</span><kbd>g</kbd><kbd>r</kbd></span></div><div class="d">Start a review on the PR</div>
+          <div class="k"><span class="keys"><code>:Octo comment add</code></span></div><div class="d">Reply on the current thread</div>
+          <div class="k"><span class="keys"><code>:Octo review submit</code></span></div><div class="d">Approve / comment / request-changes</div>
+          <div class="k"><span class="keys"><code>:Octo pr merge squash admin</code></span></div><div class="d">Merge — with admin bypass</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CONFIGS ===================== -->
+  <section class="configs" id="configs" style="scroll-margin-top:66px">
+    <h2>Where your configs live</h2>
+    <div class="cfg-grid">
+      <div class="cfg">
+        <h4 style="color:var(--nvim)">Neovim (LazyVim)</h4>
+        <code class="path">~/.config/nvim/</code>
+        <p>Theme set in <code>lua/plugins/colorscheme.lua</code>. Add plugins as files under <code>lua/plugins/</code>. Restart nvim to apply.</p>
+      </div>
+      <div class="cfg">
+        <h4 style="color:var(--tmux)">tmux</h4>
+        <code class="path">~/.tmux.conf</code>
+        <p>Reload without restarting: <span class="badge prefix">Ctrl a</span> then <kbd>r</kbd>. Or <code>tmux source ~/.tmux.conf</code>.</p>
+      </div>
+      <div class="cfg">
+        <h4 style="color:var(--wez)">WezTerm</h4>
+        <code class="path">C:\Users\&lt;you&gt;\.config\wezterm\wezterm.lua</code>
+        <p>Lives on the Windows side. Auto-reloads the instant you save — no restart needed.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="end">
+    Tip: press Ctrl&#8239;+&#8239;P to print or save as PDF — it reformats to a dense, ink-friendly layout.<br>
+    Font: JetBrainsMono Nerd Font · Theme: Catppuccin Mocha / Latte · Built for your terminal stack
+  </footer>
+
+</div>
+
+</body>
+</html>
