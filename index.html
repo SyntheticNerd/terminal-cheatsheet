@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Terminal stack cheat sheet — Neovim (LazyVim), tmux, WezTerm, and Git/GitHub (gh, octo.nvim), styled in Catppuccin Mocha.">
+<meta name="description" content="Terminal stack cheat sheet — Neovim (LazyVim), tmux, WezTerm, and Git/GitHub (gh, gh-dash, octo.nvim), styled in Catppuccin Mocha.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%E2%8C%A8%EF%B8%8F</text></svg>">
 <title>Terminal Stack Cheat Sheet — Neovim · tmux · WezTerm</title>
 <style>
@@ -571,6 +571,7 @@
       <a class="doclink" href="https://cli.github.com/manual/" target="_blank" rel="noopener">gh CLI Manual <span class="arr">↗</span></a>
       <a class="doclink" href="https://github.com/jesseduffield/lazygit/blob/master/docs/keybindings/Keybindings_en.md" target="_blank" rel="noopener">lazygit Keys <span class="arr">↗</span></a>
       <a class="doclink" href="https://github.com/pwntester/octo.nvim" target="_blank" rel="noopener">octo.nvim <span class="arr">↗</span></a>
+      <a class="doclink" href="https://github.com/dlvhdr/gh-dash" target="_blank" rel="noopener">gh-dash <span class="arr">↗</span></a>
       <a class="doclink" href="https://git-scm.com/docs" target="_blank" rel="noopener">Git Docs <span class="arr">↗</span></a>
     </div>
 
@@ -649,6 +650,19 @@
           <div class="k"><span class="keys"><code>:Octo comment add</code></span></div><div class="d">Reply on the current thread</div>
           <div class="k"><span class="keys"><code>:Octo review submit</code></span></div><div class="d">Approve / comment / request-changes</div>
           <div class="k"><span class="keys"><code>:Octo pr merge squash admin</code></span></div><div class="d">Merge — with admin bypass</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>gh-dash — PR / issue dashboard</h3>
+        <p class="note">A TUI board of what needs your attention. Press <kbd>?</kbd> for every key.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>gh dash</kbd></span></div><div class="d">Launch the dashboard</div>
+          <div class="k"><span class="keys"><kbd>j</kbd><kbd>k</kbd></span></div><div class="d">Move between rows</div>
+          <div class="k"><span class="keys"><kbd>←</kbd><kbd>→</kbd></span></div><div class="d">Switch sections (My PRs, Needs Review…)</div>
+          <div class="k"><span class="keys"><kbd>Enter</kbd></span></div><div class="d">Preview PR / issue in a side panel</div>
+          <div class="k"><span class="keys"><kbd>o</kbd> <span class="sep">/</span> <kbd>/</kbd></span></div><div class="d">Open in browser / search &amp; filter</div>
+          <div class="k"><span class="keys"><kbd>?</kbd> <span class="sep">/</span> <kbd>q</kbd></span></div><div class="d">Show all keys / quit</div>
         </div>
       </div>
     </div>
