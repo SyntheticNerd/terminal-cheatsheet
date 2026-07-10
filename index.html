@@ -146,6 +146,13 @@
   section.wez  { --tool: var(--wez); }
   section.git  { --tool: var(--accent); }
 
+  .docs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: -6px 0 22px; }
+  .docs .docs-label { font-family: var(--mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
+  .doclink { font-family: var(--mono); font-size: .78rem; text-decoration: none; color: var(--tool); padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--tool) 35%, var(--border)); border-radius: 7px; background: color-mix(in srgb, var(--tool) 7%, transparent); transition: background .15s, border-color .15s; white-space: nowrap; }
+  .doclink:hover { background: color-mix(in srgb, var(--tool) 16%, transparent); border-color: var(--tool); }
+  .doclink:focus-visible { outline: 2px solid var(--tool); outline-offset: 2px; }
+  .doclink .arr { opacity: .55; }
+
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; align-items: start; }
 
   .card {
@@ -228,6 +235,7 @@
     h1 { font-size: 1.35rem; }
     h1 br { display: none; }
     .lede { display: none; }
+    .docs { display: none; }
     .wrap { padding: 0; max-width: none; }
     .band { margin-bottom: 8px; padding-top: 10px; }
     .band h2 { font-size: 1.15rem; }
@@ -307,6 +315,12 @@
   <!-- ===================== NEOVIM ===================== -->
   <section class="tool nvim" id="neovim">
     <div class="band"><h2>Neovim</h2><span class="sub">LazyVim distribution · leader = <span class="badge leader">Space</span></span></div>
+    <div class="docs">
+      <span class="docs-label">Docs</span>
+      <a class="doclink" href="https://www.lazyvim.org/keymaps" target="_blank" rel="noopener">LazyVim Keymaps <span class="arr">↗</span></a>
+      <a class="doclink" href="https://www.lazyvim.org/configuration" target="_blank" rel="noopener">LazyVim Config <span class="arr">↗</span></a>
+      <a class="doclink" href="https://neovim.io/doc/user/" target="_blank" rel="noopener">Neovim Manual <span class="arr">↗</span></a>
+    </div>
 
     <div class="callout">
       <strong>The mental model:</strong> Neovim is <em>modal</em>. You're almost always in <strong>Normal</strong> mode (for moving &amp; commands), not typing text. Press <kbd>i</kbd> to enter <strong>Insert</strong> mode and type; press <kbd>Esc</kbd> to go back. If a keypress does something weird, you're probably in the wrong mode — hit <kbd>Esc</kbd>.
@@ -423,6 +437,12 @@
   <!-- ===================== TMUX ===================== -->
   <section class="tool tmux" id="tmux">
     <div class="band"><h2>tmux</h2><span class="sub">terminal multiplexer · prefix = <span class="badge prefix">Ctrl a</span></span></div>
+    <div class="docs">
+      <span class="docs-label">Docs</span>
+      <a class="doclink" href="https://github.com/tmux/tmux/wiki/Getting-Started" target="_blank" rel="noopener">Getting Started <span class="arr">↗</span></a>
+      <a class="doclink" href="https://man.openbsd.org/tmux" target="_blank" rel="noopener">Manual — all keys &amp; options <span class="arr">↗</span></a>
+      <a class="doclink" href="https://github.com/tmux/tmux/wiki" target="_blank" rel="noopener">Wiki <span class="arr">↗</span></a>
+    </div>
 
     <div class="callout">
       <strong>The mental model:</strong> a <strong>session</strong> holds <strong>windows</strong> (like tabs), and each window holds <strong>panes</strong> (splits). Everything survives disconnection — detach and the programs keep running. Every shortcut below is: press <span class="badge prefix">Ctrl a</span>, release, <em>then</em> the key.
@@ -489,6 +509,12 @@
   <!-- ===================== WEZTERM ===================== -->
   <section class="tool wez" id="wezterm">
     <div class="band"><h2>WezTerm</h2><span class="sub">the terminal · opens straight into WSL Ubuntu</span></div>
+    <div class="docs">
+      <span class="docs-label">Docs</span>
+      <a class="doclink" href="https://wezterm.org/config/keys.html" target="_blank" rel="noopener">Key Bindings <span class="arr">↗</span></a>
+      <a class="doclink" href="https://wezterm.org/config/default-keys.html" target="_blank" rel="noopener">Default Keys <span class="arr">↗</span></a>
+      <a class="doclink" href="https://wezterm.org/config/files.html" target="_blank" rel="noopener">Config Files <span class="arr">↗</span></a>
+    </div>
 
     <div class="callout">
       <strong>tmux vs WezTerm splits:</strong> WezTerm has its own tabs and panes, but for real work prefer <strong>tmux</strong> inside it — tmux survives detach, closed windows, and SSH. Use WezTerm tabs/panes for quick, throwaway layouts.
@@ -540,6 +566,13 @@
   <!-- ===================== GIT ===================== -->
   <section class="tool git" id="git">
     <div class="band"><h2>Git &amp; GitHub</h2><span class="sub">gitsigns · lazygit · gh CLI · octo.nvim</span></div>
+    <div class="docs">
+      <span class="docs-label">Docs</span>
+      <a class="doclink" href="https://cli.github.com/manual/" target="_blank" rel="noopener">gh CLI Manual <span class="arr">↗</span></a>
+      <a class="doclink" href="https://github.com/jesseduffield/lazygit/blob/master/docs/keybindings/Keybindings_en.md" target="_blank" rel="noopener">lazygit Keys <span class="arr">↗</span></a>
+      <a class="doclink" href="https://github.com/pwntester/octo.nvim" target="_blank" rel="noopener">octo.nvim <span class="arr">↗</span></a>
+      <a class="doclink" href="https://git-scm.com/docs" target="_blank" rel="noopener">Git Docs <span class="arr">↗</span></a>
+    </div>
 
     <div class="callout">
       <strong>lazygit</strong> is a full visual Git interface — stage, commit, push, branch, and view diffs without memorizing git commands. Open it from inside Neovim with <span class="badge leader">Space</span><kbd>g</kbd><kbd>g</kbd>, or just run <kbd>lazygit</kbd> in any repo. <em>(Just installed &amp; ready to use.)</em>
