@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Terminal stack cheat sheet — Neovim (LazyVim), tmux, WezTerm, and Git/GitHub (gh, gh-dash, octo.nvim), styled in Catppuccin Mocha.">
+<meta name="description" content="Terminal stack cheat sheet — Neovim, tmux, WezTerm, Git/GitHub, and shell tools, Catppuccin Mocha.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>%E2%8C%A8%EF%B8%8F</text></svg>">
 <title>Terminal Stack Cheat Sheet — Neovim · tmux · WezTerm</title>
 <style>
@@ -146,6 +146,12 @@
   section.wez  { --tool: var(--wez); }
   section.git  { --tool: var(--accent); }
 
+  section.shell { --tool: #179299; }
+  @media (prefers-color-scheme: dark) { section.shell { --tool: #94e2d5; } }
+  :root[data-theme="light"] section.shell { --tool: #179299; }
+  :root[data-theme="dark"]  section.shell { --tool: #94e2d5; }
+  @media print { section.shell { --tool: #0e7490; } }
+
   .docs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: -6px 0 22px; }
   .docs .docs-label { font-family: var(--mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
   .doclink { font-family: var(--mono); font-size: .78rem; text-decoration: none; color: var(--tool); padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--tool) 35%, var(--border)); border-radius: 7px; background: color-mix(in srgb, var(--tool) 7%, transparent); transition: background .15s, border-color .15s; white-space: nowrap; }
@@ -275,6 +281,7 @@
     <a href="#tmux"><span class="bar" style="background:var(--tmux)"></span>tmux</a>
     <a href="#wezterm"><span class="bar" style="background:var(--wez)"></span>WezTerm</a>
     <a href="#git"><span class="bar" style="background:var(--accent)"></span>Git · GitHub</a>
+    <a href="#shell"><span class="bar" style="background:#179299"></span>Shell &amp; CLI</a>
     <a href="#configs"><span class="bar" style="background:var(--accent)"></span>Configs</a>
   </div>
 </nav>
@@ -663,6 +670,55 @@
           <div class="k"><span class="keys"><kbd>Enter</kbd></span></div><div class="d">Preview PR / issue in a side panel</div>
           <div class="k"><span class="keys"><kbd>o</kbd> <span class="sep">/</span> <kbd>/</kbd></span></div><div class="d">Open in browser / search &amp; filter</div>
           <div class="k"><span class="keys"><kbd>?</kbd> <span class="sep">/</span> <kbd>q</kbd></span></div><div class="d">Show all keys / quit</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== SHELL & CLI ===================== -->
+  <section class="tool shell" id="shell">
+    <div class="band"><h2>Shell &amp; CLI</h2><span class="sub">modern terminal power-ups · AI agents</span></div>
+    <div class="docs">
+      <span class="docs-label">Docs</span>
+      <a class="doclink" href="https://github.com/ajeetdsouza/zoxide" target="_blank" rel="noopener">zoxide <span class="arr">↗</span></a>
+      <a class="doclink" href="https://github.com/junegunn/fzf" target="_blank" rel="noopener">fzf <span class="arr">↗</span></a>
+      <a class="doclink" href="https://docs.atuin.sh" target="_blank" rel="noopener">atuin <span class="arr">↗</span></a>
+      <a class="doclink" href="https://github.com/eza-community/eza" target="_blank" rel="noopener">eza <span class="arr">↗</span></a>
+      <a class="doclink" href="https://github.com/sharkdp/bat" target="_blank" rel="noopener">bat <span class="arr">↗</span></a>
+      <a class="doclink" href="https://github.com/kunchenguid/firstmate" target="_blank" rel="noopener">firstmate <span class="arr">↗</span></a>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>Modern CLI tools</h3>
+        <p class="note">In <code>~/.local/bin</code>, wired into <code>~/.zshrc</code>. Open a new shell to use.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>z</kbd> <kbd>dir</kbd></span></div><div class="d"><strong>zoxide</strong> — jump to a visited dir · <code>zi</code> to pick</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>R</kbd></span></div><div class="d"><strong>atuin</strong> — searchable shell history</div>
+          <div class="k"><span class="keys"><kbd>Ctrl</kbd><kbd>T</kbd></span></div><div class="d"><strong>fzf</strong> — fuzzy file picker</div>
+          <div class="k"><span class="keys"><kbd>Alt</kbd><kbd>C</kbd></span></div><div class="d"><strong>fzf</strong> — fuzzy <code>cd</code> into a dir</div>
+          <div class="k"><span class="keys"><kbd>ls</kbd> <span class="sep">/</span> <kbd>ll</kbd> <span class="sep">/</span> <kbd>lt</kbd></span></div><div class="d"><strong>eza</strong> — modern ls (icons, git, tree)</div>
+          <div class="k"><span class="keys"><kbd>bat</kbd> <kbd>file</kbd></span></div><div class="d"><strong>bat</strong> — syntax-highlighted <code>cat</code></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>AI agents in the terminal</h3>
+        <p class="note">Sign in on first launch (ChatGPT / Claude account).</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>claude</kbd></span></div><div class="d">Claude Code — Anthropic's terminal agent</div>
+          <div class="k"><span class="keys"><kbd>codex</kbd></span></div><div class="d">OpenAI Codex CLI</div>
+          <div class="k"><span class="keys"><kbd>cd ~/firstmate</kbd></span></div><div class="d"><strong>firstmate</strong> — then launch <kbd>claude</kbd>/<kbd>codex</kbd> inside; it orchestrates a "crew" of agents across tmux windows + git worktrees</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Scroll a pane without the mouse</h3>
+        <p class="note">You're inside tmux — this is copy mode.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge prefix" style="--tool:var(--tmux)">Ctrl a</span><span class="then">then</span><kbd>[</kbd></span></div><div class="d">Enter scroll / copy mode</div>
+          <div class="k"><span class="keys"><kbd>↑</kbd><kbd>↓</kbd> <span class="sep">/</span> <kbd>PgUp</kbd><kbd>PgDn</kbd></span></div><div class="d">Scroll by line / by screen</div>
+          <div class="k"><span class="keys"><kbd>q</kbd></span></div><div class="d">Exit back to the live prompt</div>
         </div>
       </div>
     </div>
