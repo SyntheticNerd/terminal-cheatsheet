@@ -721,6 +721,17 @@
           <div class="k"><span class="keys"><kbd>q</kbd></span></div><div class="d">Exit back to the live prompt</div>
         </div>
       </div>
+
+      <div class="card">
+        <h3>Copy to clipboard (WSL)</h3>
+        <p class="note">Pipe anything to the Windows clipboard via <code>clip.exe</code>.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>cpwd</kbd></span></div><div class="d">Copy the current directory's path</div>
+          <div class="k"><span class="keys"><kbd>cpath</kbd> <kbd>file</kbd></span></div><div class="d">Copy a file's absolute path (defaults to cwd)</div>
+          <div class="k"><span class="keys"><code>pwd | clip.exe</code></span></div><div class="d">The raw trick — copy any command's output</div>
+          <div class="k"><span class="keys"><code>realpath f | clip.exe</code></span></div><div class="d">Absolute path of a file to the clipboard</div>
+        </div>
+      </div>
     </div>
   </section>
 
