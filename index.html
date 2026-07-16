@@ -510,6 +510,25 @@
           <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>Ctrl</kbd><kbd>a</kbd></span></div><div class="d">Send a literal <kbd>Ctrl</kbd><kbd>a</kbd> to the shell</div>
         </div>
       </div>
+
+      <div class="card">
+        <h3>Scrollback <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(inside Claude Code)</span></h3>
+        <p class="note">Custom, no prefix. Active only when the pane is running Claude Code — everywhere else these keys pass straight through to the app.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><kbd>Alt</kbd><kbd>k</kbd></span> <span class="sep">/</span> <kbd>j</kbd></div><div class="d">Scroll one line up / down</div>
+          <div class="k"><span class="keys"><kbd>Alt</kbd><kbd>u</kbd></span> <span class="sep">/</span> <kbd>d</kbd></div><div class="d">Scroll half a screen up / down</div>
+          <div class="k"><span class="keys"><kbd>q</kbd></span></div><div class="d">Exit scroll mode back to the prompt</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Floating popups <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(custom)</span></h3>
+        <p class="note">Overlays that drop over any pane. Toggle the notepad again to hide it — its text persists until you quit it.</p>
+        <div class="rows">
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>N</kbd></span></div><div class="d">Notepad — floating Neovim scratch (toggle hides, <code>:q</code> starts fresh)</div>
+          <div class="k"><span class="keys"><span class="badge prefix">Ctrl a</span><span class="then">then</span><kbd>g</kbd></span></div><div class="d">Markdown reader — floating <code>glow</code> browser, tables wrapped (<kbd>q</kbd> closes)</div>
+        </div>
+      </div>
     </div>
   </section>
 
