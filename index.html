@@ -152,6 +152,12 @@
   :root[data-theme="dark"]  section.shell { --tool: #94e2d5; }
   @media print { section.shell { --tool: #0e7490; } }
 
+  section.aws { --tool: #df8e1d; }
+  @media (prefers-color-scheme: dark) { section.aws { --tool: #f9e2af; } }
+  :root[data-theme="light"] section.aws { --tool: #df8e1d; }
+  :root[data-theme="dark"]  section.aws { --tool: #f9e2af; }
+  @media print { section.aws { --tool: #a16207; } }
+
   .docs { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: -6px 0 22px; }
   .docs .docs-label { font-family: var(--mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); }
   .doclink { font-family: var(--mono); font-size: .78rem; text-decoration: none; color: var(--tool); padding: 4px 10px; border: 1px solid color-mix(in srgb, var(--tool) 35%, var(--border)); border-radius: 7px; background: color-mix(in srgb, var(--tool) 7%, transparent); transition: background .15s, border-color .15s; white-space: nowrap; }
@@ -282,6 +288,7 @@
     <a href="#wezterm"><span class="bar" style="background:var(--wez)"></span>WezTerm</a>
     <a href="#git"><span class="bar" style="background:var(--accent)"></span>Git · GitHub</a>
     <a href="#shell"><span class="bar" style="background:#179299"></span>Shell &amp; CLI</a>
+    <a href="#aws"><span class="bar" style="background:#df8e1d"></span>AWS</a>
     <a href="#configs"><span class="bar" style="background:var(--accent)"></span>Configs</a>
   </div>
 </nav>
@@ -760,6 +767,53 @@
           <div class="k"><span class="keys"><kbd>serve</kbd> <kbd>file.html</kbd></span></div><div class="d">Serve a specific file (or a directory path)</div>
           <div class="k"><span class="keys"><kbd>serve-list</kbd></span></div><div class="d">List running servers (pid · port · directory)</div>
           <div class="k"><span class="keys"><kbd>serve-stop</kbd> <kbd>PORT</kbd></span></div><div class="d">Stop one server · <kbd>serve-stop all</kbd> stops every one</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== AWS ===================== -->
+  <section class="tool aws" id="aws">
+    <div class="band"><h2>AWS</h2><span class="sub">one command → SSM port-forward to RDS Postgres</span></div>
+    <div class="docs">
+      <span class="docs-label">Docs</span>
+      <a class="doclink" href="https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-sso.html" target="_blank" rel="noopener">SSO login <span class="arr">↗</span></a>
+      <a class="doclink" href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-sessions-start.html" target="_blank" rel="noopener">SSM Sessions <span class="arr">↗</span></a>
+      <a class="doclink" href="https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-working-with-install-plugin.html" target="_blank" rel="noopener">Session Manager plugin <span class="arr">↗</span></a>
+    </div>
+
+    <div class="callout">
+      <strong>The mental model:</strong> the database is never exposed publicly. <code>db-tunnel</code> logs you in via SSO (only if the session expired), finds the running <strong>Shared-Bastion</strong> instance and the cluster's writer endpoint, then opens an encrypted <strong>SSM</strong> tunnel so a local port maps to the private RDS endpoint. Point <code>psql</code> or a GUI at <code>localhost</code> — no VPN, no SSH keys, no inbound ports. Because it discovers the instance and endpoint at runtime, it keeps working after either is replaced.
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h3>db-tunnel <span style="color:var(--faint);font-weight:400;text-transform:none;letter-spacing:0">(custom · one command)</span></h3>
+        <p class="note">Defined in <code>~/.config/zsh/db-tunnel.zsh</code>. Auto-logs-in if needed. Runs in the foreground — <kbd>Ctrl</kbd><kbd>c</kbd> closes the tunnel. Leave it open in its own pane.</p>
+        <div class="cmdlist">
+          <div class="cmd"><code>db-tunnel <b>staging</b></code><span>Tunnel to staging Postgres → <code>localhost:15432</code></span></div>
+          <div class="cmd"><code>db-tunnel <b>prod</b></code><span>Tunnel to production → <code>localhost:15433</code></span></div>
+          <div class="cmd"><code>db-tunnel prod <b>sql01</b></code><span>Use the <code>sql01</code> cluster instead of the primary</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Connect through the tunnel</h3>
+        <p class="note">Run <code>db-tunnel</code> first and keep it open. Then point any client at <code>localhost</code>.</p>
+        <div class="cmdlist">
+          <div class="cmd"><code>psql -h localhost -p 15432 -U &lt;user&gt; &lt;db&gt;</code><span>Staging</span></div>
+          <div class="cmd"><code>psql -h localhost -p 15433 -U &lt;user&gt; &lt;db&gt;</code><span>Production</span></div>
+        </div>
+        <p class="note">Or point a GUI (TablePlus, DBeaver, pgAdmin) at <code>localhost:15432</code> / <code>:15433</code>.</p>
+      </div>
+
+      <div class="card">
+        <h3>SSO — when you use the AWS CLI directly</h3>
+        <p class="note"><code>db-tunnel</code> handles login itself; these are for running <code>aws</code> commands on their own.</p>
+        <div class="cmdlist">
+          <div class="cmd"><code>aws sso login --profile <b>business-apps-staging</b></code><span>Log in (staging · <code>-prod</code> for production)</span></div>
+          <div class="cmd"><code>aws sts get-caller-identity --profile business-apps-staging</code><span>Check you're still logged in</span></div>
+          <div class="cmd"><code>aws sso logout</code><span>End all SSO sessions</span></div>
         </div>
       </div>
     </div>
